@@ -1,0 +1,56 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>X Bookmarks → Markdown Settings</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; margin: 24px; max-width: 720px; }
+    label { display:block; margin: 12px 0 6px; }
+    input[type="text"], input[type="number"] { width: 520px; max-width: 100%; padding: 6px; }
+    .row { margin-bottom: 12px; }
+    .hint { color:#666; font-size: 12px; }
+    button { margin-top: 16px; padding: 8px 12px; }
+  </style>
+</head>
+<body>
+  <h1>X Bookmarks → Markdown — Settings</h1>
+
+  <div class="row">
+    <label>Save subfolder (empty = download root)</label>
+    <input id="saveDir" type="text" value="" />
+  </div>
+
+  <div class="row">
+    <label>Optional media subfolder (empty = root)</label>
+    <input id="mediaSubfolder" type="text" value="" />
+  </div>
+
+  <div class="row">
+    <label>Default filename template</label>
+    <input id="filename" type="text" value="{date} {author} {id}.md" />
+    <div class="hint">Placeholders: {date}, {author}, {id}, {slug}</div>
+  </div>
+
+  <div class="row">
+    <label>Default number of bookmarks</label>
+    <input id="limit" type="number" min="1" max="200" value="5" />
+  </div>
+
+  <div class="row">
+    <label><input id="unbookmark" type="checkbox" /> Unbookmark after saving</label>
+  </div>
+
+  <div class="row">
+    <label><input id="saveImages" type="checkbox" checked /> Save images</label>
+  </div>
+
+  <div class="row">
+    <label><input id="embedLocalImages" type="checkbox" checked /> Embed local image paths in Markdown</label>
+  </div>
+
+  <button id="save">Save</button>
+  <span id="msg"></span>
+
+  <script src="options.js"></script>
+</body>
+</html>

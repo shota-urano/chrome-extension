@@ -1,0 +1,37 @@
+{
+    "manifest_version": 3,
+    "name": "X Bookmarks → Markdown",
+    "version": "0.7.0",
+    "description": "Save top N X bookmarks as Markdown (with images & links). Robust autoscroll, expand 'Show more', shallow folder structure, overlay, and popup UI.",
+    "permissions": [
+      "downloads",
+      "storage",
+      "scripting",
+      "activeTab",
+      "tabs"
+    ],
+    "host_permissions": [
+      "https://x.com/*",
+      "https://twitter.com/*",
+      "https://mobile.twitter.com/*",
+      "https://pbs.twimg.com/*"
+    ],
+    "background": { "service_worker": "background.js" },
+    "action": {
+      "default_title": "X Bookmarks → Markdown",
+      "default_popup": "popup.html"
+    },
+    "options_page": "options.html",
+    "content_scripts": [
+      {
+        "matches": [
+          "https://x.com/i/bookmarks*",
+          "https://twitter.com/i/bookmarks*",
+          "https://mobile.twitter.com/i/bookmarks*"
+        ],
+        "js": ["content_bookmarks.js"],
+        "run_at": "document_idle"
+      }
+    ]
+  }
+  
