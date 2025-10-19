@@ -1,0 +1,18 @@
+{
+    "manifest_version": 3,
+    "name": "Page Link Collector",
+    "version": "0.2.1",
+    "description": "現在タブのページに表示されている全リンクを収集してエクスポートします。",
+    "permissions": ["activeTab", "storage", "clipboardWrite", "scripting"],  // ← scripting 追加
+    "host_permissions": ["<all_urls>"],
+    "action": { "default_popup": "popup.html" },
+    "background": { "service_worker": "background.js" },
+    "content_scripts": [
+      {
+        "matches": ["http://*/*", "https://*/*"],   // 自動注入（基本はこれで入る）
+        "js": ["content.js"],
+        "run_at": "document_idle"
+      }
+    ]
+  }
+  
