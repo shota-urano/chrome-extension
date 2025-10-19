@@ -71,13 +71,12 @@ async function downloadURL(path, url) {
 
 // ---------- markdown ----------
 function mdForTweet(t, relImages, links) {
+  const safe = (s) => (s || '').replace(/"/g, '\\"');
   const fm = [
     '---',
-    'source: "x"',
-    `tweet_id: "${t.id}"`,
-    `author: "${(t.authorName || t.slug || '').replace(/"/g, '\\"')}"`,
-    `url: "${t.url}"`,
-    `date: "${t.date || ''}"`,
+    `tweet_id: "${safe(t.id)}"`,
+    `"x url": "${safe(t.url)}"`,
+    `"post date": "${safe(t.date)}"`,
     '---'
   ].join('\n');
 

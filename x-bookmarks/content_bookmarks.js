@@ -174,31 +174,56 @@ if (window.__XBM_CS_ACTIVE) {
     }
   
     // ---------- unbookmark helpers ----------
-    function findBookmarkButton(article) {
-      // data-testid 優先（Xの公式テストID）
-      let btn =
-        article.querySelector('button[data-testid="bookmark"]') ||
-        article.querySelector('button[data-testid="unbookmark"]');
+    function isBookmarkedButton(btn) {
+      if (!btn) return null;
+      const testId = (btn.getAttribute('data-testid') || '').toLowerCase();
+      if (testId === 'bookmark') return false;
+      if (testId === 'unbookmark') return true;
   
-      // aria-label の多言語フォールバック
-      if (!btn) {
-        btn = Array.from(article.querySelectorAll('button[aria-label]')).find(b => {
-          const a = (b.getAttribute('aria-label') || '').toLowerCase();
-          // 「ブックマーク解除」「削除」「ブックマーク済み」や英語の remove/unbookmark を含むもの
-          return /remove|unbookmark|bookmark|ブックマーク解除|削除|ブックマーク済み|ブックマーク/.test(a);
-        });
-      }
-      return btn || null;
+      const pressed = (btn.getAttribute('aria-pressed') || '').toLowerCase();
+      if (pressed === 'true') return true;
+      if (pressed === 'false') return false;
+  
+      const aria = (btn.getAttribute('aria-label') || '').toLowerCase();
+      if (/remove|unbookmark|ブックマーク解除|ブックマーク済み/.test(aria)) return true;
+      if (/add to bookmarks|bookmark|ブックマーク/.test(aria)) return false;
+  
+      return null;
     }
   
-    function isBookmarkedButton(btn) {
-      const aria = (btn.getAttribute('aria-label') || '').toLowerCase();
-      // 「解除」「済み」などはブックマーク状態
-      if (/remove|unbookmark|ブックマーク解除|ブックマーク済み/.test(aria)) return true;
-      // 「ブックマーク」だけの場合は未設定っぽい
-      if (/bookmark|ブックマーク/.test(aria)) return false;
-      // 手掛かりがなければ unknown
-      return null;
+    function isClickable(el) {
+      if (!el) return false;
+      if (el.tagName === 'BUTTON') return true;
+      const role = (el.getAttribute('role') || '').toLowerCase();
+      if (role === 'button') return true;
+      return false;
+    }
+  
+    function findBookmarkButton(article) {
+      const selectors = [
+        'button[data-testid="bookmark"]',
+        'button[data-testid="unbookmark"]',
+        '[role="button"][data-testid="bookmark"]',
+        '[role="button"][data-testid="unbookmark"]'
+      ];
+      for (const sel of selectors) {
+        const found = article.querySelector(sel);
+        if (found) return found;
+      }
+  
+      const testIdCandidates = Array.from(article.querySelectorAll('[data-testid]')).find(el => {
+        const id = (el.getAttribute('data-testid') || '').toLowerCase();
+        if (!id.includes('bookmark')) return false;
+        return isClickable(el);
+      });
+      if (testIdCandidates) return testIdCandidates;
+  
+      const ariaCandidates = Array.from(article.querySelectorAll('[aria-label]')).find(el => {
+        if (!isClickable(el)) return false;
+        const aria = (el.getAttribute('aria-label') || '').toLowerCase();
+        return /bookmark|ブックマーク/.test(aria);
+      });
+      return ariaCandidates || null;
     }
   
     async function waitUnbookmarked(article, btn, timeoutMs = 3000) {
@@ -218,8 +243,11 @@ if (window.__XBM_CS_ACTIVE) {
   
       // ボタンの aria-label 変化もチェック
       const labelChanged = (async () => {
+        let current = btn;
         while (Date.now() - start < timeoutMs) {
-          const state = btn.isConnected ? isBookmarkedButton(btn) : null;
+          if (!document.body.contains(article)) return true;
+          if (!current || !current.isConnected) current = findBookmarkButton(article);
+          const state = isBookmarkedButton(current);
           if (state === false) return true; // 未ブックマーク状態になった
           await sleep(120);
         }
